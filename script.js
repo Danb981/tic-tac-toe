@@ -28,22 +28,18 @@ let gameController = (() => {
         let board = gameBoard.getBoard();
         for(let x = 0; x < board.length; x = x + 3){
             if(board[x] === board[x + 1] && board[x] === board[x + 2] && board[x] != undefined){
-                console.log("winner");
                 return true;
             }
         }
         for(let x = 0; x < Math.sqrt(board.length); x++){
             if(board[x] === board[x + 3] && board[x] === board[x + 6] && board[x] != undefined){
-                console.log("winner");
                 return true;
             }
         }
         if(board[0] === board[4] && board[0] === board[8] && board[0] != undefined){
-            console.log("winner");
             return true;
         }
         if(board[2] === board[4] && board[2] === board[6] && board[2] != undefined){
-            console.log("winner");
             return true;
         }
         return false;
@@ -51,7 +47,6 @@ let gameController = (() => {
 
     let resetGame = () => {
         gameBoard.resetBoard();
-        gameBoard.enableBoard();
         gameUi.resetUi();
     }
 
@@ -78,7 +73,7 @@ let gameBoard = (() => {
     let _board = new Array(9);
     let _container = document.querySelector(".container");
 
-    let enableBoard = () => {
+    let _enableBoard = () => {
         let cells = _container.querySelectorAll(".cell");
         [...cells].forEach((cell) => cell.addEventListener("click", gameController.makeMove));
     }
@@ -89,7 +84,7 @@ let gameBoard = (() => {
             cell.classList.add("cell");
             cell.dataset.index = x;
             _container.appendChild(cell);
-            enableBoard();
+            _enableBoard();
         }
     })();
 
@@ -111,6 +106,7 @@ let gameBoard = (() => {
         let pieces = _container.querySelectorAll(".piece");
         [...pieces].forEach((piece) => piece.remove());
         _board = new Array(9);
+        _enableBoard();
     }
 
     let disableBoard = () => {
@@ -118,7 +114,7 @@ let gameBoard = (() => {
         [...cells].forEach((cell) => cell.removeEventListener("click", gameController.makeMove));
     }
 
-    return {getBoard, addPiece, resetBoard, enableBoard, disableBoard};
+    return {getBoard, addPiece, resetBoard, disableBoard};
 })();
 
 let gameUi = (() => {
@@ -165,5 +161,3 @@ let gameUi = (() => {
 
     return{updateTurnText, updateWinnerText, resetUi};
 })();
-
-
