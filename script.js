@@ -49,13 +49,20 @@ let gameController = (() => {
         return false;
     }
 
+    let resetGame = () => {
+        gameBoard.resetBoard();
+        gameBoard.enableBoard();
+        gameUi.resetUi();
+    }
+
     let makeMove = (e) => {
         let place = e.target.dataset.index || e.target.parentElement.dataset.index; //if place already taken the event target is the piece
         if(gameBoard.getBoard()[place] === undefined){
             gameBoard.addPiece(place, _playerXTurn ? playerX.getPiece() : playerO.getPiece());
             if(_checkWinner()){
-                (_playerXTurn ? playerX : playerY).incrementScore();
+                (_playerXTurn ? playerX : playerO).incrementScore();
                 gameUi.updateWinnerText(_playerXTurn);
+                gameBoard.disableBoard();
             }
             else{
                 _toggleTurn();
@@ -64,20 +71,25 @@ let gameController = (() => {
         }
     }
 
-    return{makeMove};
+    return{makeMove, resetGame};
 })();
 
 let gameBoard = (() => {
     let _board = new Array(9);
     let _container = document.querySelector(".container");
 
+    let enableBoard = () => {
+        let cells = _container.querySelectorAll(".cell");
+        [...cells].forEach((cell) => cell.addEventListener("click", gameController.makeMove));
+    }
+
     (() => { //initialize dom objects
         for(let x = 0; x < _board.length; x++){
             let cell = document.createElement("div");
             cell.classList.add("cell");
             cell.dataset.index = x;
-            cell.addEventListener("click", gameController.makeMove);
             _container.appendChild(cell);
+            enableBoard();
         }
     })();
 
@@ -95,7 +107,18 @@ let gameBoard = (() => {
         cell.appendChild(pieceObj);
     }
 
-    return {getBoard, addPiece};
+    let resetBoard = () => {
+        let pieces = _container.querySelectorAll(".piece");
+        [...pieces].forEach((piece) => piece.remove());
+        _board = new Array(9);
+    }
+
+    let disableBoard = () => {
+        let cells = _container.querySelectorAll(".cell");
+        [...cells].forEach((cell) => cell.removeEventListener("click", gameController.makeMove));
+    }
+
+    return {getBoard, addPiece, resetBoard, enableBoard, disableBoard};
 })();
 
 let gameUi = (() => {
@@ -121,20 +144,26 @@ let gameUi = (() => {
     let _toggleNewRoundUi = () => {
         if(_newRoundUi.style.display == "inline-block"){
             _newRoundUi.style.display = "none";
-            console.log("test");
         }
         else{
             _newRoundUi.style.display = "inline-block";
         }
     }
 
+    let resetUi = () => {
+        updateTurnText(true);
+        _winnerUi.innerText = '';
+        _toggleNewRoundUi();
+    }
+
     (() => { //initialization
         updateTurnText(true);
         _winnerUi.innerText = '';
         _updateScore();
+        _newRoundUi.addEventListener("click", gameController.resetGame);
     })();
 
-    return{updateTurnText, updateWinnerText};
+    return{updateTurnText, updateWinnerText, resetUi};
 })();
 
 
